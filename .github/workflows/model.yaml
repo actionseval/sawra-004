@@ -1,0 +1,42 @@
+name: CI
+
+# on: [push, pull_request]
+on: [repository_dispatch, workflow_dispatch]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          pip install binaryornot==0.4.4
+          pip install cookiecutter==2.6
+          pip install django-upgrade==1.29.1
+          pip install djlint==1.36.4
+          pip install gitpython==3.1.46
+          pip install jinja2==3.1.6
+          pip install pre-commit==4.5.1
+          pip install pygithub==2.8.1
+          pip install pytest==9.0.2
+          pip install pytest-cookies==0.7
+          pip install pytest-instafail==0.5
+          pip install pytest-xdist==3.8.0
+          pip install pyyaml==6.0.3
+          pip install requests==2.32.5
+          pip install ruff==0.14.14
+          pip install 'sh==2.2.2; sys_platform!=win23'
+          pip install tox==4.34.1
+          pip install 'tox-uv>=1.17'
+
+      - name: Run script
+        run: |
+          uv sync --locked
+          uv run pytest -n auto tests

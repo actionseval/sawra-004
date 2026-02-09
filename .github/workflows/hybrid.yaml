@@ -1,0 +1,45 @@
+name: CI
+
+# on: [push, pull_request]
+on: [repository_dispatch, workflow_dispatch]
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          - '3.13'
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          pip install binaryornot==0.4.4
+          pip install cookiecutter==2.6
+          pip install django-upgrade==1.29.1
+          pip install djlint==1.36.4
+          pip install gitpython==3.1.46
+          pip install jinja2==3.1.6
+          pip install pre-commit==4.5.1
+          pip install pygithub==2.8.1
+          pip install pytest==9.0.2
+          pip install pytest-cookies==0.7
+          pip install pytest-instafail==0.5
+          pip install pytest-xdist==3.8.0
+          pip install pyyaml==6.0.3
+          pip install requests==2.32.5
+          pip install ruff==0.14.14
+          pip install tox==4.34.1
+          pip install tox-uv>=1.17
+      - run: |
+          uv sync --locked
+      - run: |
+          uv run pytest -n auto tests
+    env:
+      UV_RUN_RECURSION_DEPTH: '1'

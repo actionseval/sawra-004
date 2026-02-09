@@ -1,0 +1,25 @@
+name: CI
+# on: push
+on: [repository_dispatch, workflow_dispatch]
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          - '3.13'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          apt install -y base-files bash coreutils dash docker-ce-cli libc-bin libc6:amd64 libpython3.12-minimal:amd64 libpython3.12-stdlib:amd64 locales ncurses-base openssl python-is-python3 python3-apport python3-minimal python3-setuptools python3-zope.interface python3.12-minimal tzdata
+          uv pip install uv==0.9.26
+      - name: Execute Tests
+        run: |
+          uv sync --locked
+          uv run pytest -n auto tests
