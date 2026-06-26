@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y base-files bash coreutils dash docker-ce-cli libc-bin libc6:amd64 libpython3.12-minimal:amd64 libpython3.12-stdlib:amd64 locales ncurses-base openssl python-is-python3 python3-apport python3-minimal python3-setuptools python3-zope.interface python3.12-minimal tzdata
+      - name: Install uv
+        run: uv pip install uv==0.9.26
+      - name: Sync lockfile
+        run: uv sync --locked
+      - name: Run tests
+        run: uv run pytest -n auto tests
